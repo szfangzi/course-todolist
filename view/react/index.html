@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    li input[type=text]{
+      display: none;
+    }
+    li.edit span{
+      display: none;
+    }
+    li.edit input[type=text]{
+      display: inline-block;
+    }
+  </style>
+  <script type="text/javascript" src="public/react.min.js"></script>
+  <script type="text/javascript" src="public/react-dom.min.js"></script>
+  <script type="text/javascript" src="public/browser.min.js"></script>
+</head>
+<body id="app">
+<h1>任务列表</h1>
+
+<form name="form">
+  <input type="text" placeholder="请填写你的任务" name="newTask" >
+</form>
+<ul>
+  <li>
+    <input type="checkbox">
+    <span></span>
+    <input type="text" >
+    <button>删除</button>
+  </li>
+</ul>
+
+<span class="unf-len">还剩下<b></b>个未完成的任务</span>
+<a href="javascript:;" id="all-btn">所有任务</a>
+<a href="javascript:;" id="unf-btn">未完成的任务</a>
+<a href="javascript:;" id="f-btn">已完成的任务</a>
+<a href="javascript:;" id="del-all-btn">删除所有已完成的任务</a>
+
+
+</body>
+<script type="text/babel" src="public/app.js"></script>
+</html>

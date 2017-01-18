@@ -11,10 +11,12 @@ var db = mysql.createConnection({
 db.connect();
 http.createServer(function(req, res){
 
+  var viewPath = '../../view/react';
+
 	if(req.url == '/'){
-    resResource('../../view/angular/index.html','text/html');
+    resResource(viewPath + '/index.html','text/html');
 	}else if(req.url.substr(0,7) == '/public'){
-    fs.stat('../../view/angular' + req.url, function (err, stat) {
+    fs.stat(viewPath + req.url, function (err, stat) {
       if(err || !stat.isFile()){
         res.writeHead(404);
         res.end(JSON.stringify({status:0, msg:'not found'}));
@@ -27,7 +29,7 @@ http.createServer(function(req, res){
     }else if(/\.png/.test(req.url) || /\.jpg/.test(req.url)){
       type = 'image/png';
     }
-    resResource('../../view/angular' + req.url, type);
+    resResource(viewPath + req.url, type);
 
   }else if(req.url == '/list'){
 
