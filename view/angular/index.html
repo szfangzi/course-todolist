@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp" ng-cloak>
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    li input[type=text]{
+      display: none;
+    }
+    li.edit span{
+      display: none;
+    }
+    li.edit input[type=text]{
+      display: inline-block;
+    }
+  </style>
+  <script type="text/javascript" src="public/angular.min.js"></script>
+</head>
+<body ng-controller="myCtrl">
+<h1>任务列表</h1>
+
+<form name="form">
+  <input type="text" placeholder="请填写你的任务" name="newTask" ng-model="newTask" ng-keydown="($event.which === 13 && newTask.trim() != '')?createNewTask():0">
+</form>
+<ul>
+  <li ng-repeat="item in list" ng-class="{edit:item.edit}">
+    <input type="checkbox" ng-model="item.isTick" ng-click="update({id:item.id, isTick:item.isTick?1:0})">
+    <span ng-dblclick="item.edit=true">{{ item.name }}</span>
+    <input type="text" ng-blur="update({id:item.id, name:item.name});item.edit=false" ng-model="item.name">
+    <button ng-click="delTask(item.id)">删除</button>
+  </li>
+</ul>
+
+<span class="unf-len">还剩下<b>{{unflen}}</b>个未完成的任务</span>
+<a href="javascript:;" id="all-btn" ng-click="render('all')">所有任务</a>
+<a href="javascript:;" id="unf-btn" ng-click="render('unf')">未完成的任务</a>
+<a href="javascript:;" id="f-btn" ng-click="render('f')">已完成的任务</a>
+<a href="javascript:;" id="del-all-btn" ng-click="delf()">删除所有已完成的任务</a>
+
+<script>
+  var app = angular.module('myApp',[]);
+  app.controller('myCtrl', function($scope, $http) {
+
+    var list = [];
+    $scope.list = list;
+    $scope.unflen = 0;
+
+//    调接口初始化任务列表
+    $http.get("/list").then(function (response) {
+      list = response.data;
+      for (var i = 0; i < list.length; i++) {
+        if(list[i].hasOwnProperty('isTick')){
+          list[i].isTick = list[i].isTick==1?true:false;
+        }
+        list[i].edit = false;
+      }
+      $scope.list = list;
+
+    });
+
+    $scope.$watch('list',function(newValue,oldValue, scope){
+
+      $scope.unflen = list.filter(function (n) {
+        return n.isTick == false;
+      }).length;
+
+    }, true);
+
+    $scope.render = function (type) {
+      if(type == 'all'){
+        $scope.list = list;
+      }else if(type == 'unf'){
+        $scope.list = list.filter(function (n) {
+          return n.isTick == false;
+        });
+      }else if(type == 'f'){
+        $scope.list = list.filter(function (n) {
+          return n.isTick == true;
+        });
+      }
+    };
+
+    $scope.delf = function () {
+      var ids = [];
+      for (var i = 0; i < $scope.list.length; i++) {
+        if($scope.list[i].isTick){
+          ids.push($scope.list[i].id);
+        }
+      }
+      $http.post("/del",{ids:ids.join(',')}).then(function (response) {
+        if(response.data.status){
+          list = $scope.list = list.filter(function (n) {
+            return n.isTick == false;
+          });
+        }
+      });
+    };
+
+    $scope.createNewTask = function () {
+      $http.post("/add",{name:$scope.newTask}).then(function (response) {
+        if(response.data.status){
+          $scope.list.push(response.data.newTask);
+        }
+        $scope.newTask = '';
+      });
+    };
+
+    $scope.update = function (task) {
+      $http.post("/update",task).then(function (response) {
+        if(response.data.status){
+          for (var i = 0; i < $scope.list.length; i++) {
+            if($scope.list[i].id == task.id){
+              for (var k in task) {
+                if(k!='id'){
+                  if(k=='isTick'){
+                    $scope.list[i].isTick = task.isTick==1?true:false;
+                  }else{
+                    $scope.list[i][k] = task[k];
+                  }
+
+                }
+              }
+              list = $scope.list;
+              break;
+            }
+          }
+        }
+      });
+    }
+
+    $scope.delTask = function (id) {
+      $http.post("/del",{ids:id}).then(function (response) {
+        if(response.data.status){
+          for (var i = 0; i < $scope.list.length; i++) {
+            if($scope.list[i].id == id){
+              $scope.list.splice(i, 1);
+              list = $scope.list;
+              break;
+            }
+          }
+        }
+      });
+    }
+
+  });
+
+</script>
+</body>
+</html>
