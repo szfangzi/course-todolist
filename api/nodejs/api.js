@@ -89,7 +89,7 @@ http.createServer(function(req, res){
       }
 			db.query('update list set ' + updateText + ' where id='+obj.id, function(err, data){
 				if(!err){
-					res.end(JSON.stringify({status:"1"}));
+					res.end(JSON.stringify({status:"1", newTodo:obj}));
 				}else{
 					console.log(err);
 					res.end(JSON.stringify({status:"0"}));
