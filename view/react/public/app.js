@@ -1,10 +1,8 @@
-var data = [{id:1,name:'ken',isTick:0},{id:2,name:'ken1',isTick:1},{id:3,name:'ken2',isTick:0}];
-
 var Todolist = React.createClass({
   render:function(){
     var todos = this.props.data.map(function (todo) {
       return (
-        <Todo tid={todo.id} isTick={todo.isTick} delTodo={this.props.delTodo.bind(this,todo.id)} tick={this.props.tick.bind(this)} >
+        <Todo edit={todo.edit} tid={todo.id} isTick={todo.isTick} delTodo={this.props.delTodo.bind(this,todo.id)} tick={this.props.tick.bind(this)} changeName={this.props.changeName} >
           {todo.name}
         </Todo>
       )
@@ -18,11 +16,20 @@ var Todolist = React.createClass({
 });
 var Todo = React.createClass({
   render:function(){
-    return (
-      <li data-tid={this.props.tid}>
-        <input type="checkbox" onChange={this.props.tick} checked={this.props.isTick} /><span>{this.props.children}</span><input type="text" value={this.props.children} /><button onClick={this.props.delTodo}>删除</button>
-      </li>
-    )
+    if(this.props.edit){
+      return (
+        <li data-tid={this.props.tid} className="edit">
+          <input type="checkbox" onChange={this.props.tick} checked={this.props.isTick} /><span onDoubleClick={this.props.changeName}>{this.props.children}</span><input type="text" value={this.props.children} /><button onClick={this.props.delTodo}>删除</button>
+        </li>
+      )
+    }else{
+      return (
+        <li data-tid={this.props.tid}>
+          <input type="checkbox" onChange={this.props.tick} checked={this.props.isTick} /><span onDoubleClick={this.props.changeName}>{this.props.children}</span><input type="text" value={this.props.children} /><button onClick={this.props.delTodo}>删除</button>
+        </li>
+      )
+    }
+
   }
 });
 
@@ -31,10 +38,10 @@ var Nav = React.createClass({
     return (
       <div>
         <span class="unf-len">还剩下<b></b>个未完成的任务</span>&nbsp;
-        <a href="javascript:;" id="all-btn">所有任务</a>&nbsp;
-        <a href="javascript:;" id="unf-btn">未完成的任务</a>&nbsp;
-        <a href="javascript:;" id="f-btn">已完成的任务</a>&nbsp;
-        <a href="javascript:;" id="del-all-btn">删除所有已完成的任务</a>
+        <a href="javascript:;" id="all-btn" onClick={this.props.filterList.bind(this, 'all')}>所有任务</a>&nbsp;
+        <a href="javascript:;" id="unf-btn" onClick={this.props.filterList.bind(this, 'unf')}>未完成的任务</a>&nbsp;
+        <a href="javascript:;" id="f-btn" onClick={this.props.filterList.bind(this, 'f')}>已完成的任务</a>&nbsp;
+        <a href="javascript:;" id="del-all-btn" onClick={this.props.delf}>删除所有已完成的任务</a>
       </div>
     )
   }
@@ -44,6 +51,8 @@ var App = React.createClass({
   getInitialState: function() {
     return {
       data: [],
+      odata:[],
+      router:'all',
       newTodo:''
     };
   },
@@ -53,10 +62,37 @@ var App = React.createClass({
       method: 'GET'
     }).then(function(res) {
       res.json().then(function(data) {
-        that.setState({data:data});
+        that.setState({odata:data});
+        that.filterList();
       });
     }).catch(function(err) {
       console.log(err);
+    });
+  },
+  filterList:function(type){
+    var that = this;
+    var router = type || this.state.router;
+    var list = this.state.odata;
+    for (var i = 0; i < list.length; i++) {
+      list[i].edit = false;
+    };
+    this.setState({router:router}, function () {
+      router = that.state.router;
+      if(router == 'all'){
+        that.setState({data:list});
+      }else if(router == 'unf'){
+        that.setState({
+          data:list.filter(function (n) {
+            return !n.isTick;
+          })
+        });
+      }else if(router == 'f'){
+        that.setState({
+          data:list.filter(function (n) {
+            return n.isTick;
+          })
+        });
+      }
     });
   },
   addTodo:function(e){
@@ -69,9 +105,11 @@ var App = React.createClass({
       }).then(function(res) {
         res.json().then(function(data) {
           if(data.status){
-            var list = that.state.data;
+            var list = that.state.odata;
             list.push(data.newTask);
-            that.setState({newTodo:'', data:list});
+            that.setState({newTodo:'', odata:list}, function () {
+              that.filterList();
+            });
           }
         });
       }).catch(function(err) {
@@ -89,11 +127,13 @@ var App = React.createClass({
     }).then(function(res) {
       res.json().then(function(data) {
         if(data.status){
-          var list = that.state.data;
+          var list = that.state.odata;
           for (var i = 0; i < list.length; i++) {
             if(list[i].id == data.newTodo.id){
               list[i].isTick = data.newTodo.isTick;
-              that.setState({data:list});
+              that.setState({odata:list}, function () {
+                that.filterList();
+              });
               break;
             }
           }
@@ -102,6 +142,10 @@ var App = React.createClass({
     }).catch(function(err) {
       console.log(err);
     });
+
+  },
+  changeName:function(e){
+    var li = e.target.parentNode;
 
   },
   changeNewTodo:function(e){
@@ -115,15 +159,45 @@ var App = React.createClass({
     }).then(function(res) {
       res.json().then(function(data) {
         if(data.status){
-          var list = that.state.data;
+          var list = that.state.odata;
           for (var i = 0; i < list.length; i++) {
             if(tid == list[i].id){
               list.splice(i, 1);
-              that.setState({data:list});
+              that.setState({odata:list}, function () {
+                that.filterList();
+              });
               break;
             }
 
           }
+        }
+      });
+    }).catch(function(err) {
+      console.log(err);
+    });
+
+  },
+  delf:function(){
+    var that = this;
+    var list = this.state.odata;
+    var ids = [];
+    for (var i = 0; i < list.length; i++) {
+      if(list[i].isTick){
+        ids.push(list[i].id);
+      }
+    }
+    fetch('/del', {
+      method: 'POST',
+      body:JSON.stringify({ids:ids.join(',')})
+    }).then(function(res) {
+      res.json().then(function(data) {
+        if(data.status){
+          var unflist = list.filter(function(n){
+            return !n.isTick
+          });
+          that.setState({odata:unflist}, function () {
+            that.filterList();
+          });
         }
       });
     }).catch(function(err) {
@@ -136,8 +210,8 @@ var App = React.createClass({
       <div className="app">
         <h1>任务列表</h1>
         <input type="text" placeholder="请填写你的任务" name="newTask" onChange={this.changeNewTodo} onKeyDown={this.addTodo} value={this.state.newTodo} />
-        <Todolist data={this.state.data} delTodo={this.delTodo} tick={this.tick} />
-        <Nav />
+        <Todolist data={this.state.data} delTodo={this.delTodo} tick={this.tick} changeName={this.changeName} />
+        <Nav filterList={this.filterList} delf={this.delf} />
       </div>
     );
   }
