@@ -4,13 +4,15 @@
   <meta charset="UTF-8">
   <title></title>
   <style>
-    li input[type=text]{
+    li input[type=text] {
       display: none;
     }
-    li.edit span{
+
+    li.edit span {
       display: none;
     }
-    li.edit input[type=text]{
+
+    li.edit input[type=text] {
       display: inline-block;
     }
   </style>
@@ -19,33 +21,40 @@
 </head>
 <body>
 
-<script type="text/template" id="todolist-tmpl">
-<h1>任务列表</h1>
-<input type="text" placeholder="请填写你的任务" name="newTask" />
-<ul>
-  {{#each todos.value}}
-  <li ng-repeat="item in list" ng-class="{edit:item.edit}">
-    <input type="checkbox" {($checked)}="isTick">
-    <span>{{name}}</span>
-    <input type="text" value="{{name}}">
-    <button ($click)="destroy()">删除</button>
-  </li>
-  {{/each}}
-</ul>
 
-<span class="unf-len">还剩下<b></b>个未完成的任务</span>
-<a href="javascript:;" id="all-btn">所有任务</a>
-<a href="javascript:;" id="unf-btn">未完成的任务</a>
-<a href="javascript:;" id="f-btn">已完成的任务</a>
-<a href="javascript:;" id="del-all-btn">删除所有已完成的任务</a>
+<script type="text/template" id="todo-create-tmpl">
+  <input type="text" placeholder="请填写你的任务" id="new-todo" {($value)}="todo.name" ($enter)="createTodo()" />
+</script>
+<script type="text/template" id="todo-list-tmpl">
+  <ul id="todo-list">
+    {{#each todos}}
+    <li tid="{{id}}" class="{{#if isEditing(this)}}edit{{/if}}">
+      <input type="checkbox" {($checked)}="isTick" ($change)="save()">
+      <span ($dblclick)="edit(this)">{{name}}</span>
+      <input type="text" {($value)}="name" {$focused}="isEditing(this)" ($blur)="updateName()" />
+      <button ($click)="destroy()">删除</button>
+    </li>
+    {{/each}}
+  </ul>
+</script>
+<script type="text/template" id="todolist-tmpl">
+  <h1>任务列表</h1>
+  <todo-create />
+  <todo-list {todos}="todos.value" />
+
+  <span class="unf-len">还剩下<b>{{todos.value.unf.length}}</b>个未完成的任务</span>
+  <a href="#all" id="all-btn">所有任务</a>
+  <a href="#unf" id="unf-btn">未完成的任务</a>
+  <a href="#f" id="f-btn">已完成的任务</a>
+  <a href="javascript:;" id="del-all-btn">删除所有已完成的任务</a>
 </script>
 
 </body>
 <script>
-//  var todoAlgebra = new can.set.Algebra(
-//    can.set.props.boolean("isTick"),
-//    can.set.props.id("id")
-//  );
+  //  var todoAlgebra = new can.set.Algebra(
+  //    can.set.props.boolean("isTick"),
+  //    can.set.props.id("id")
+  //  );
 
   var Todo = can.DefineMap.extend({
     id: "number",
@@ -54,10 +63,10 @@
   });
   Todo.List = can.DefineList.extend({
     "#": Todo,
-    get unf(){
+    get unf() {
       return this.filter({isTick: false});
     },
-    get f(){
+    get f() {
       return this.filter({isTick: true});
     }
   });
@@ -65,20 +74,51 @@
   can.connect.superMap({
     url: "/todos",
     Map: Todo,
-    List: Todo.List,
-    name: "todo",
+    List: Todo.List
 //    algebra: todoAlgebra
   });
 
-  var todos = [];
+  var TodoCreateVM = can.DefineMap.extend({
+    todo: {Value: Todo},
+    createTodo: function () {
+      this.todo.save().then(function () {
+        this.todo = new Todo();
+      }.bind(this));
+    }
+  });
+  can.Component.extend({
+    tag: "todo-create",
+    view: can.stache.from("todo-create-tmpl"),
+    ViewModel: TodoCreateVM
+  });
+
+  var TodoListVM = can.DefineMap.extend({
+    todos: Todo.List,
+    editing: Todo,
+    isEditing: function(todo){
+      return todo === this.editing;
+    },
+    edit: function(todo){
+      this.editing = todo;
+    },
+    updateName: function() {
+      this.editing.save().then(function () {
+        this.editing = null;
+      }.bind(this));;
+    }
+  });
+  can.Component.extend({
+    tag: "todo-list",
+    view: can.stache.from("todo-list-tmpl"),
+    ViewModel: TodoListVM
+  });
+
+
   var tmpl = can.stache.from("todolist-tmpl");
-//  $.get('/list', function (data) {
-//    todos = new Todo.List(data);
-//    render(todos);
-//  });
   render(Todo.getList({}));
+
   function render(todos) {
-    var frag = tmpl({todos:todos});
+    var frag = tmpl({todos: todos});
     document.body.innerHTML = '';
     document.body.appendChild(frag);
   }
