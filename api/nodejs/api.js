@@ -11,7 +11,7 @@ var db = mysql.createConnection({
 db.connect();
 http.createServer(function(req, res){
 
-  var viewPath = '../../view/react';
+  var viewPath = '../../view/can';
 
 	if(req.url == '/'){
     resResource(viewPath + '/index.html','text/html');

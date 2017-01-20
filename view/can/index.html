@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    li input[type=text]{
+      display: none;
+    }
+    li.edit span{
+      display: none;
+    }
+    li.edit input[type=text]{
+      display: inline-block;
+    }
+  </style>
+  <script type="text/javascript" src="public/jquery-2.2.4.min.js"></script>
+  <script type="text/javascript" src="public/can.all.js"></script>
+</head>
+<body>
+
+<script type="text/template" id="todolist-tmpl">
+<h1>任务列表</h1>
+<input type="text" placeholder="请填写你的任务" name="newTask" />
+<ul>
+  {{#each todos.value}}
+  <li ng-repeat="item in list" ng-class="{edit:item.edit}">
+    <input type="checkbox" {($checked)}="isTick">
+    <span>{{name}}</span>
+    <input type="text" value="{{name}}">
+    <button ($click)="destroy()">删除</button>
+  </li>
+  {{/each}}
+</ul>
+
+<span class="unf-len">还剩下<b></b>个未完成的任务</span>
+<a href="javascript:;" id="all-btn">所有任务</a>
+<a href="javascript:;" id="unf-btn">未完成的任务</a>
+<a href="javascript:;" id="f-btn">已完成的任务</a>
+<a href="javascript:;" id="del-all-btn">删除所有已完成的任务</a>
+</script>
+
+</body>
+<script>
+//  var todoAlgebra = new can.set.Algebra(
+//    can.set.props.boolean("isTick"),
+//    can.set.props.id("id")
+//  );
+
+  var Todo = can.DefineMap.extend({
+    id: "number",
+    name: "string",
+    isTick: {type: "boolean", value: false}
+  });
+  Todo.List = can.DefineList.extend({
+    "#": Todo,
+    get unf(){
+      return this.filter({isTick: false});
+    },
+    get f(){
+      return this.filter({isTick: true});
+    }
+  });
+
+  can.connect.superMap({
+    url: "/todos",
+    Map: Todo,
+    List: Todo.List,
+    name: "todo",
+//    algebra: todoAlgebra
+  });
+
+  var todos = [];
+  var tmpl = can.stache.from("todolist-tmpl");
+//  $.get('/list', function (data) {
+//    todos = new Todo.List(data);
+//    render(todos);
+//  });
+  render(Todo.getList({}));
+  function render(todos) {
+    var frag = tmpl({todos:todos});
+    document.body.innerHTML = '';
+    document.body.appendChild(frag);
+  }
+</script>
+</html>
