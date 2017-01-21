@@ -17,7 +17,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // 获取列表
 app.get('/todos', function (req, res) {
-  db.query('select * from list',function(err,data,other){
+  var q = req.query;
+  var sqlText = 'select * from list';
+  if(q.hasOwnProperty('isTick')){
+    sqlText += ' where isTick = '+q.isTick;
+  }
+  db.query(sqlText,function(err,data,other){
     res.json(data);
   });
 });

@@ -29,24 +29,23 @@
   <ul id="todo-list">
     {{#each todos}}
     <li tid="{{id}}" class="{{#if isEditing(this)}}edit{{/if}}">
-      <input type="checkbox" {($checked)}="isTick" ($change)="save()">
+      <input type="checkbox" {($checked)}="isTick" ($change)="save()" tid="{{isTick}}" />
       <span ($dblclick)="edit(this)">{{name}}</span>
       <input type="text" {($value)}="name" {$focused}="isEditing(this)" ($blur)="updateName()" />
       <button ($click)="destroy()">删除</button>
     </li>
     {{/each}}
   </ul>
+  <span class="unf-len">还剩下<b>{{len}}</b>个未完成的任务</span>
+  <a href="#all" id="all-btn">所有任务</a>
+  <a href="#unf" id="unf-btn">未完成的任务</a>
+  <a href="#f" id="f-btn">已完成的任务</a>
+  <a href="javascript:;" id="del-all-btn" ($click)="destroyF()" >删除所有已完成的任务</a>
 </script>
 <script type="text/template" id="todolist-tmpl">
   <h1>任务列表</h1>
   <todo-create />
-  <todo-list {todos}="todos.value" />
-
-  <span class="unf-len">还剩下<b>{{todos.value.unf.length}}</b>个未完成的任务</span>
-  <a href="#all" id="all-btn">所有任务</a>
-  <a href="#unf" id="unf-btn">未完成的任务</a>
-  <a href="#f" id="f-btn">已完成的任务</a>
-  <a href="javascript:;" id="del-all-btn">删除所有已完成的任务</a>
+  <todo-list {todos}="todosPromise.value" {len}="todosPromise.value.unf.length" />
 </script>
 
 </body>
@@ -74,7 +73,8 @@
   can.connect.superMap({
     url: "/todos",
     Map: Todo,
-    List: Todo.List
+    List: Todo.List,
+    name: "todo"
 //    algebra: todoAlgebra
   });
 
@@ -94,18 +94,28 @@
 
   var TodoListVM = can.DefineMap.extend({
     todos: Todo.List,
+    len:"number",
     editing: Todo,
     isEditing: function(todo){
       return todo === this.editing;
     },
     edit: function(todo){
+      this.todos = this.otodos.filter(function (n) {
+        return n.isTick  == 0;
+      });
       this.editing = todo;
     },
     updateName: function() {
       this.editing.save().then(function () {
         this.editing = null;
-      }.bind(this));;
+      }.bind(this));
+    },
+    destroyF: function () {
+      this.todos.f.each(function (todo) {
+        todo.destroy();
+      });
     }
+
   });
   can.Component.extend({
     tag: "todo-list",
@@ -113,14 +123,29 @@
     ViewModel: TodoListVM
   });
 
+  var AppVM = can.DefineMap.extend({
+    filter: "string",
+    get todosPromise(){
+      if(!this.filter || this.filter === 'all'){
+        return Todo.getList({});
+      }else if(this.filter === 'f'){
+        return Todo.getList({isTick:1});
+      }else if(this.filter === 'unf'){
+        return Todo.getList({isTick:0});
+      }
+    }
+  });
+
+  var appVM = new AppVM();
+  can.route.data = appVM;
+  can.route("{filter}");
+  can.route.ready();
 
   var tmpl = can.stache.from("todolist-tmpl");
-  render(Todo.getList({}));
+  var frag = tmpl(appVM);
+  document.body.innerHTML = '';
+  document.body.appendChild(frag);
 
-  function render(todos) {
-    var frag = tmpl({todos: todos});
-    document.body.innerHTML = '';
-    document.body.appendChild(frag);
-  }
+
 </script>
 </html>
