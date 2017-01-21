@@ -37,9 +37,9 @@
     {{/each}}
   </ul>
   <span class="unf-len">还剩下<b>{{len}}</b>个未完成的任务</span>
-  <a href="#all" id="all-btn">所有任务</a>
-  <a href="#unf" id="unf-btn">未完成的任务</a>
-  <a href="#f" id="f-btn">已完成的任务</a>
+  <a href="{{routeUrl filter=undefined}}" id="all-btn">所有任务</a>
+  <a href="{{routeUrl filter='unf'}}" id="unf-btn">未完成的任务</a>
+  <a href="{{routeUrl filter='f'}}" id="f-btn">已完成的任务</a>
   <a href="javascript:;" id="del-all-btn" ($click)="destroyF()" >删除所有已完成的任务</a>
 </script>
 <script type="text/template" id="todolist-tmpl">
@@ -100,9 +100,7 @@
       return todo === this.editing;
     },
     edit: function(todo){
-      this.todos = this.otodos.filter(function (n) {
-        return n.isTick  == 0;
-      });
+      console.log(this.todos);
       this.editing = todo;
     },
     updateName: function() {
@@ -129,9 +127,9 @@
       if(!this.filter || this.filter === 'all'){
         return Todo.getList({});
       }else if(this.filter === 'f'){
-        return Todo.getList({isTick:1});
+        return Todo.getList({isTick:true});
       }else if(this.filter === 'unf'){
-        return Todo.getList({isTick:0});
+        return Todo.getList({isTick:false});
       }
     }
   });
