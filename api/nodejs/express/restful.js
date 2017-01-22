@@ -10,7 +10,7 @@ var db = mysql.createConnection({
 });
 db.connect();
 
-var viewPath = '../../../view/can/';
+var viewPath = '../../../view/';
 app.use(express.static(viewPath));
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true }));
