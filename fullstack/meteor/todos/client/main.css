@@ -1,0 +1,12 @@
+li input[type=text]{
+  display: none;
+}
+li.edit input[type=text]{
+  display: inline-block;
+}
+li.edit span{
+  display: none;
+}
+.del-line{
+  text-decoration: line-through;
+}

@@ -1,0 +1,8 @@
+<template name="todo">
+  <li>
+    <input type="checkbox" checked="{{isTick}}" />
+    <span class="{{#if isTick}}del-line{{/if}}">{{name}}</span>
+    <input type="text" />
+    <button>删除</button>
+  </li>
+</template>
