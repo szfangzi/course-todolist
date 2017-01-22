@@ -58,7 +58,7 @@ app.put('/todos/:id', function (req, res) {
   db.query('update list set ' + updateText + ' where id='+id, function(err, data){
     if(!err){
       obj.id = id;
-      res.json({id:id});
+      res.json(obj);
     }else{
       console.log(err);
       res.json({});
