@@ -103,7 +103,6 @@ function main(sources) {
   }
 }
 
-
 const drivers = {
   DOM: makeDOMDriver('body'),
   HTTP: makeHTTPDriver()
