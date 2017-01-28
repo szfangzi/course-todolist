@@ -1,5 +1,6 @@
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
+import String exposing (..)
 
 main =
   Html.beginnerProgram { model = model, view = view, update = update }
@@ -33,7 +34,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div []
-    [ button [ onClick Decrement ] [ text "-" ]
+    [ button [ onClick Decrement ] [ text (repeat 3 "text") ]
     , div [] [ text (toString model) ]
     , button [ onClick Increment ] [ text "+" ]
     ]
