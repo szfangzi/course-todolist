@@ -48,4 +48,6 @@ state.subscribe((state) => {
   prevState = state;
 });
 
-[1, 2, 3, 4].map(n => s => console.log(s))
+Rx.Observable.from([1,2,3,4,5])
+  .scan((count, a) => count + a, 0)
+  .subscribe(count1 => console.log(count1));
