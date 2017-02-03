@@ -16,6 +16,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
   }
   echo json_encode($arr);
 }else if($_SERVER['REQUEST_METHOD'] == 'POST'){
+  $name = json_decode(file_get_contents("php://input"))->name;
+  $result = $mysqli->query("insert into list (name) values('".$name."')");
+  $id = mysqli_insert_id($mysqli);
+  if($result){
+    echo json_encode(["id"=>$id, "name"=>$name, "isTick"=>0]);
+  }else{
+    echo json_encode([]);
+  }
 
 }else if($_SERVER['REQUEST_METHOD'] == 'PUT'){
 

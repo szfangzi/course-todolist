@@ -38,7 +38,7 @@ state.subscribe((state) => {
     render(state.todos);
   }
   if (state.unflen !== prevState.unflen) {
-    document.querySelector('#hello').innerHTML = 'Hello ' + state.inputValue;
+
   }
   prevState = state;
 });
