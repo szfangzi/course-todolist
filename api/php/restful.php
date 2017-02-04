@@ -26,7 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
   }
 
 }else if($_SERVER['REQUEST_METHOD'] == 'PUT'){
-
+// 'update list set ' + updateText + ' where id='+id
 }else if($_SERVER['REQUEST_METHOD'] == 'DELETE'){
 
 }
