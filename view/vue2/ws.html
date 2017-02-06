@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    .del-line{
+      text-decoration: line-through;
+    }
+  </style>
+  <script src="public/vue2.min.js"></script>
+  <script src="../public/vue-resource.min.js"></script>
+</head>
+<body>
+
+<div id="app">
+  <h1>任务列表</h1>
+  <input type="text" v-model="newTodo" v-on:keypress.enter="add">
+  <ul>
+    <!--所有任务-->
+    <li v-for="todo in list" v-if="hash=='#all'||hash==''" v-bind:class="{'del-line':todo.isTick}"><input type="checkbox" v-model="todo.isTick" v-on:click="tick(todo.id, $event)" ><span>{{todo.name}}</span><button v-on:click="del(todo.id)">x</button></li>
+    <!--未完成任务-->
+    <!-- <li v-for="todo in list | filterBy unfFilter" v-if="hash=='#unf'" v-bind:class="{'del-line':todo.isTick}"><input type="checkbox" v-model="todo.isTick" v-on:click="tick(todo.id, $event)" ><span>{{todo.name}}</span><button v-on:click="del(todo.id, $index)">x</button></li> -->
+    <!--已完成任务-->
+    <!-- <li v-for="todo in list | filterBy fFilter" v-if="hash=='#f'" v-bind:class="{'del-line':todo.isTick}"><input type="checkbox" v-model="todo.isTick" v-on:click="tick(todo.id, $event)" ><span>{{todo.name}}</span><button v-on:click="del(todo.id, $index)">x</button></li> -->
+  </ul>
+  <span>还剩下<b>{{unFLen}}</b>个未完成的任务</span>
+  <a href="#all">所有任务</a>
+  <a href="#unf">未完成的任务</a>
+  <a href="#f">已完成的任务</a>
+  <a href="javascript:;" v-on:click="delf">删除所有已完成的任务</a>
+</div>
+
+<script>
+
+  var vm = new Vue({
+    el:'#app',
+    data:{
+      newTodo:'',
+      list:[],
+      hash:location.hash,
+      unFLen:0
+    },
+    watch:{
+      'list':{
+//        一旦数组修改，马上保存数据到localstorge
+        handler:function(val,oldVal){
+          this.unFLen = this.list.filter(this.unfFilter).length;
+        },
+//        深度监听，可以监听对象里面的值变化
+        deep:true
+      }
+    },
+    created:function () {
+      this.$on('init', this.init);
+    },
+    methods:{
+      init: function () {
+        let ws = new WebSocket("ws://localhost:3000/todos");
+        ws.onmessage = function (e) {
+          this.list = JSON.parse(e.data);
+        }.bind(this);
+
+        setInterval(function() {
+          if(ws.readyState === 1){
+            ws.send("1");
+          }else if(ws.readyState === 3){
+            ws = new WebSocket("ws://localhost:3000/todos");
+            ws.onmessage = function (e) {
+              this.list = JSON.parse(e.data);
+            }.bind(this);
+          }
+
+        }.bind(this),3000);
+      },
+//      新增任务
+      add: function () {
+        this.$http.post('/todos',{
+          name:this.newTodo
+        }).then(function (res) {
+          this.list.push(res.data);
+          this.newTodo = '';
+        }.bind(this), function (err) {
+          console.log(err);
+        });
+
+      },
+//      删除任务
+      del: function (id) {
+        this.$http.delete('/todos/'+id).then(function (res) {
+          var obj = this.list.map(function(v, i) {
+            return {v:v,i:i};
+          }).filter(function(obj, i) {
+            return obj.v.id === id;
+          })[0];
+          console.log(obj);
+          this.list.splice(obj.i, 1);
+        }.bind(this), function (err) {
+          console.log(err);
+        });
+      },
+      tick: function (id, e) {
+        this.$http.put('/todos/'+id, {
+          isTick:e.target.checked
+        }).then(function (res) {
+          var id = res.data.id;
+          var isTick = res.data.isTick;
+          this.list.map(function (n) {
+            if(n.id == id){
+              n.isTick = isTick;
+            }
+          })
+        }.bind(this), function (err) {
+          console.log(err);
+        });
+      },
+//      未完成任务过滤器
+      unfFilter:function (val){
+        return val.isTick == false;
+      },
+//      已完成任务过滤器
+      fFilter:function (val){
+        return val.isTick == true;
+      },
+      delf: function () {
+        this.list = this.list.filter(this.unfFilter);
+      }
+    }
+  });
+
+  vm.$emit('init');
+
+  //  路由监听
+  window.onhashchange = function () {
+    vm.hash = location.hash;
+  }
+
+
+</script>
+</body>
+</html>
