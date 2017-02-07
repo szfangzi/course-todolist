@@ -7,6 +7,18 @@
     .del-line{
       text-decoration: line-through;
     }
+    .list-item {
+  display: inline-block;
+  margin-right: 10px;
+}
+.list-enter-active, .list-leave-active {
+  transition: all 1s;
+}
+.list-enter, .list-leave-active {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
   </style>
   <script src="public/vue2.min.js"></script>
   <script src="../public/vue-resource.min.js"></script>
@@ -20,9 +32,10 @@
     <!--所有任务-->
     <li v-for="todo in list" v-if="hash=='#all'||hash==''" v-bind:class="{'del-line':todo.isTick}"><input type="checkbox" v-model="todo.isTick" v-on:click="tick(todo.id, $event)" ><span>{{todo.name}}</span><button v-on:click="del(todo.id)">x</button></li>
     <!--未完成任务-->
-    <!-- <li v-for="todo in list | filterBy unfFilter" v-if="hash=='#unf'" v-bind:class="{'del-line':todo.isTick}"><input type="checkbox" v-model="todo.isTick" v-on:click="tick(todo.id, $event)" ><span>{{todo.name}}</span><button v-on:click="del(todo.id, $index)">x</button></li> -->
+    <li v-for="todo in unfFilter" v-if="hash=='#unf'" v-bind:class="{'del-line':todo.isTick}"><input type="checkbox" v-model="todo.isTick" v-on:click="tick(todo.id, $event)" ><span>{{todo.name}}</span><button v-on:click="del(todo.id)">x</button></li>
     <!--已完成任务-->
-    <!-- <li v-for="todo in list | filterBy fFilter" v-if="hash=='#f'" v-bind:class="{'del-line':todo.isTick}"><input type="checkbox" v-model="todo.isTick" v-on:click="tick(todo.id, $event)" ><span>{{todo.name}}</span><button v-on:click="del(todo.id, $index)">x</button></li> -->
+    <li v-for="todo in fFilter" v-if="hash=='#f'" v-bind:class="{'del-line':todo.isTick}"><input type="checkbox" v-model="todo.isTick" v-on:click="tick(todo.id, $event)" ><span>{{todo.name}}</span><button v-on:click="del(todo.id)">x</button></li>
+
   </ul>
   <span>还剩下<b>{{unFLen}}</b>个未完成的任务</span>
   <a href="#all">所有任务</a>
@@ -45,7 +58,7 @@
       'list':{
 //        一旦数组修改，马上保存数据到localstorge
         handler:function(val,oldVal){
-          this.unFLen = this.list.filter(this.unfFilter).length;
+          this.unFLen = this.list.filter(todo => !todo.isTick).length;
         },
 //        深度监听，可以监听对象里面的值变化
         deep:true
@@ -54,12 +67,24 @@
     created:function () {
       this.$on('init', this.init);
     },
+    computed:{
+      //任务过滤器
+      unfFilter() {
+        return this.list.filter(todo => !todo.isTick)
+      },
+      fFilter(){
+        return this.list.filter(todo => todo.isTick)
+      }
+    },
     methods:{
       init: function () {
         let ws = new WebSocket("ws://localhost:3000/todos");
         ws.onmessage = function (e) {
           this.list = JSON.parse(e.data);
         }.bind(this);
+        ws.onopen = function(e) {
+          ws.send("1");
+        }
 
         setInterval(function() {
           if(ws.readyState === 1){
@@ -71,7 +96,7 @@
             }.bind(this);
           }
 
-        }.bind(this),3000);
+        }.bind(this), 3000);
       },
 //      新增任务
       add: function () {
@@ -114,16 +139,16 @@
           console.log(err);
         });
       },
-//      未完成任务过滤器
-      unfFilter:function (val){
-        return val.isTick == false;
-      },
-//      已完成任务过滤器
-      fFilter:function (val){
-        return val.isTick == true;
-      },
       delf: function () {
-        this.list = this.list.filter(this.unfFilter);
+        let filteredTodosIds = this.list.filter(todo => todo.isTick).map(todo => todo.id).join(',');
+        this.$http.post('/todos/delf', {
+          filteredTodosIds:filteredTodosIds
+        }).then(function (res) {
+          this.list = this.list.filter(todo => !todo.isTick);
+        }.bind(this), function (err) {
+          console.log(err);
+        });
+
       }
     }
   });

@@ -97,6 +97,19 @@ app.delete('/todos/:id', function (req, res) {
   });
 });
 
+// 删除已完成的任务
+app.post('/todos/delf', function (req, res) {
+  var ids = req.body.filteredTodosIds;
+  db.query('delete from list where id in ('+ids+')', function(err, data){
+    if(!err){
+      res.json({ids:ids});
+    }else{
+      console.log(err);
+      res.json({});
+    }
+  });
+});
+
 var server = app.listen(3000, function () {
   var host = server.address().address;
   var port = server.address().port;
