@@ -22,6 +22,7 @@ var F = require('./components/f.vue');
 
 var eventHub = require('./event.js');
 module.exports = {
+  name:'list',
   components:{
     All,
     Unf,
