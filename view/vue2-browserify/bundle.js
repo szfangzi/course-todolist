@@ -183,31 +183,22 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],3:[function(require,module,exports){
-;(function(){
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-var All = require('./components/all.vue');
-var Unf = require('./components/unf.vue');
-var F = require('./components/f.vue');
+var All = require('./components/all.js');
+var Unf = require('./components/unf.js');
+var F = require('./components/f.js');
 
 var eventHub = require('./event.js');
 module.exports = {
+  template:`<div>
+    <h1>任务列表</h1>
+    <input type="text" v-model="newTodo" v-on:keypress.enter="add">
+    <component :is="currentView" v-bind:list="list"></component>
+    <span>还剩下<b>{{unFLen}}</b>个未完成的任务</span>
+    <a href="#all">所有任务</a>
+    <a href="#unf">未完成的任务</a>
+    <a href="#f">已完成的任务</a>
+    <a href="javascript:;" v-on:click="delf">删除所有已完成的任务</a>
+  </div>`,
   components:{
     All,
     Unf,
@@ -320,71 +311,12 @@ module.exports = {
 
 }
 
-})()
-if (module.exports.__esModule) module.exports = module.exports.default
-var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
-if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('h1',[_vm._v("任务列表")]),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.newTodo),expression:"newTodo"}],attrs:{"type":"text"},domProps:{"value":_vm._s(_vm.newTodo)},on:{"keypress":function($event){if(_vm._k($event.keyCode,"enter",13)){ return; }_vm.add($event)},"input":function($event){if($event.target.composing){ return; }_vm.newTodo=$event.target.value}}}),_vm._v(" "),_c(_vm.currentView,{tag:"component",attrs:{"list":_vm.list}}),_vm._v(" "),_c('span',[_vm._v("还剩下"),_c('b',[_vm._v(_vm._s(_vm.unFLen))]),_vm._v("个未完成的任务")]),_vm._v(" "),_c('a',{attrs:{"href":"#all"}},[_vm._v("所有任务")]),_vm._v(" "),_c('a',{attrs:{"href":"#unf"}},[_vm._v("未完成的任务")]),_vm._v(" "),_c('a',{attrs:{"href":"#f"}},[_vm._v("已完成的任务")]),_vm._v(" "),_c('a',{attrs:{"href":"javascript:;"},on:{"click":_vm.delf}},[_vm._v("删除所有已完成的任务")])],1)}
-__vue__options__.staticRenderFns = []
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-5106e88e", __vue__options__)
-  } else {
-    hotAPI.rerender("data-v-5106e88e", __vue__options__)
-  }
-})()}
-},{"./components/all.vue":5,"./components/f.vue":6,"./components/unf.vue":7,"./event.js":8,"vue":13,"vue-hot-reload-api":10}],4:[function(require,module,exports){
-;(function(){
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-module.exports = {
-  data:() => {
-    return {
-
-    }
-  }
-}
-
-})()
-if (module.exports.__esModule) module.exports = module.exports.default
-var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
-if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_vm._v("\n  路由测试\n")])}
-__vue__options__.staticRenderFns = []
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-60245ad8", __vue__options__)
-  } else {
-    hotAPI.rerender("data-v-60245ad8", __vue__options__)
-  }
-})()}
-},{"vue":13,"vue-hot-reload-api":10}],5:[function(require,module,exports){
-;(function(){
-//
-//
-//
-//
-//
-//
-//
-
+},{"./components/all.js":4,"./components/f.js":5,"./components/unf.js":6,"./event.js":7}],4:[function(require,module,exports){
 var eventHub = require('../event.js');
 module.exports = {
+  template:`<ul>
+    <li v-for="todo in newlist" v-bind:class="{'del-line':todo.isTick}"><input type="checkbox" v-model="todo.isTick" v-on:click="tick(todo.id, $event)" > <span>{{todo.name}}</span><button v-on:click="del(todo.id)">x</button></li>
+  </ul>`,
   name: 'all',
   props:['list'],
   computed:{
@@ -403,33 +335,12 @@ module.exports = {
   }
 }
 
-})()
-if (module.exports.__esModule) module.exports = module.exports.default
-var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
-if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('ul',_vm._l((_vm.newlist),function(todo){return _c('li',{class:{'del-line':todo.isTick}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(todo.isTick),expression:"todo.isTick"}],attrs:{"type":"checkbox"},domProps:{"checked":Array.isArray(todo.isTick)?_vm._i(todo.isTick,null)>-1:(todo.isTick)},on:{"click":[function($event){var $$a=todo.isTick,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$c){$$i<0&&(todo.isTick=$$a.concat($$v))}else{$$i>-1&&(todo.isTick=$$a.slice(0,$$i).concat($$a.slice($$i+1)))}}else{todo.isTick=$$c}},function($event){_vm.tick(todo.id, $event)}]}}),_vm._v(" "),_c('span',[_vm._v(_vm._s(todo.name))]),_c('button',{on:{"click":function($event){_vm.del(todo.id)}}},[_vm._v("x")])])}))}
-__vue__options__.staticRenderFns = []
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-3454995e", __vue__options__)
-  } else {
-    hotAPI.rerender("data-v-3454995e", __vue__options__)
-  }
-})()}
-},{"../event.js":8,"vue":13,"vue-hot-reload-api":10}],6:[function(require,module,exports){
-;(function(){
-//
-//
-//
-//
-//
-//
-
+},{"../event.js":7}],5:[function(require,module,exports){
 var eventHub = require('../event.js');
 module.exports = {
+  template:`<ul>
+    <li v-for="todo in newlist" v-bind:class="{'del-line':todo.isTick}"><input type="checkbox" v-model="todo.isTick" v-on:click="tick(todo.id, $event)" > <span>{{todo.name}}</span><button v-on:click="del(todo.id)">x</button></li>
+  </ul>`,
   name: 'f',
   props:['list'],
   computed:{
@@ -450,33 +361,13 @@ module.exports = {
   }
 }
 
-})()
-if (module.exports.__esModule) module.exports = module.exports.default
-var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
-if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('ul',_vm._l((_vm.newlist),function(todo){return _c('li',{class:{'del-line':todo.isTick}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(todo.isTick),expression:"todo.isTick"}],attrs:{"type":"checkbox"},domProps:{"checked":Array.isArray(todo.isTick)?_vm._i(todo.isTick,null)>-1:(todo.isTick)},on:{"click":[function($event){var $$a=todo.isTick,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$c){$$i<0&&(todo.isTick=$$a.concat($$v))}else{$$i>-1&&(todo.isTick=$$a.slice(0,$$i).concat($$a.slice($$i+1)))}}else{todo.isTick=$$c}},function($event){_vm.tick(todo.id, $event)}]}}),_vm._v(" "),_c('span',[_vm._v(_vm._s(todo.name))]),_c('button',{on:{"click":function($event){_vm.del(todo.id)}}},[_vm._v("x")])])}))}
-__vue__options__.staticRenderFns = []
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-43c14a3a", __vue__options__)
-  } else {
-    hotAPI.rerender("data-v-43c14a3a", __vue__options__)
-  }
-})()}
-},{"../event.js":8,"vue":13,"vue-hot-reload-api":10}],7:[function(require,module,exports){
-;(function(){
-//
-//
-//
-//
-//
-//
 
+},{"../event.js":7}],6:[function(require,module,exports){
 var eventHub = require('../event.js');
 module.exports = {
+  template:`<ul>
+    <li v-for="todo in newlist" v-bind:class="{'del-line':todo.isTick}"><input type="checkbox" v-model="todo.isTick" v-on:click="tick(todo.id, $event)" > <span>{{todo.name}}</span><button v-on:click="del(todo.id)">x</button></li>
+  </ul>`,
   name: 'unf',
   props:['list'],
   computed:{
@@ -496,195 +387,37 @@ module.exports = {
   }
 }
 
-})()
-if (module.exports.__esModule) module.exports = module.exports.default
-var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
-if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('ul',_vm._l((_vm.newlist),function(todo){return _c('li',{class:{'del-line':todo.isTick}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(todo.isTick),expression:"todo.isTick"}],attrs:{"type":"checkbox"},domProps:{"checked":Array.isArray(todo.isTick)?_vm._i(todo.isTick,null)>-1:(todo.isTick)},on:{"click":[function($event){var $$a=todo.isTick,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$c){$$i<0&&(todo.isTick=$$a.concat($$v))}else{$$i>-1&&(todo.isTick=$$a.slice(0,$$i).concat($$a.slice($$i+1)))}}else{todo.isTick=$$c}},function($event){_vm.tick(todo.id, $event)}]}}),_vm._v(" "),_c('span',[_vm._v(_vm._s(todo.name))]),_c('button',{on:{"click":function($event){_vm.del(todo.id)}}},[_vm._v("x")])])}))}
-__vue__options__.staticRenderFns = []
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-59665eaa", __vue__options__)
-  } else {
-    hotAPI.rerender("data-v-59665eaa", __vue__options__)
-  }
-})()}
-},{"../event.js":8,"vue":13,"vue-hot-reload-api":10}],8:[function(require,module,exports){
+},{"../event.js":7}],7:[function(require,module,exports){
 var Vue = require('vue');
 var eventHub = new Vue();
 module.exports = eventHub;
 
-},{"vue":13}],9:[function(require,module,exports){
+},{"vue":11}],8:[function(require,module,exports){
 var Vue = require('vue');
 var VueRouter = require('vue-router');
 var VueResource = require('vue-resource');
 
-Vue.use(VueRouter);
+// Vue.use(VueRouter);
 Vue.use(VueResource);
 
-var App = require('./App.vue');
-var App2 = require('./App2.vue');
+var App = require('./App.js');
+Vue.component('app', App);
+// var App2 = require('./App2.vue');
 
-const routes = {
-  '/': App,
-  '/about': App2
-}
+// const routes = {
+//   '/': App,
+//   '/about': App2
+// }
 
 new Vue({
-  el: '#app',
-  data: {
-    currentRoute: window.location.pathname
-  },
-  created:function() {
-    console.log(333,this.aaaa);
-  },
-  computed: {
-    aaaa:function() {
-      return routes[this.currentRoute]
-    }
-  },
+  el: 'body',
   render: h => {
-    return h(App2);
+    return h('div');
   }
 })
 
 
-},{"./App.vue":3,"./App2.vue":4,"vue":13,"vue-resource":11,"vue-router":12}],10:[function(require,module,exports){
-var Vue // late bind
-var map = window.__VUE_HOT_MAP__ = Object.create(null)
-var installed = false
-var isBrowserify = false
-var initHookName = 'beforeCreate'
-
-exports.install = function (vue, browserify) {
-  if (installed) return
-  installed = true
-
-  Vue = vue
-  isBrowserify = browserify
-
-  // compat with < 2.0.0-alpha.7
-  if (Vue.config._lifecycleHooks.indexOf('init') > -1) {
-    initHookName = 'init'
-  }
-
-  exports.compatible = Number(Vue.version.split('.')[0]) >= 2
-  if (!exports.compatible) {
-    console.warn(
-      '[HMR] You are using a version of vue-hot-reload-api that is ' +
-      'only compatible with Vue.js core ^2.0.0.'
-    )
-    return
-  }
-}
-
-/**
- * Create a record for a hot module, which keeps track of its constructor
- * and instances
- *
- * @param {String} id
- * @param {Object} options
- */
-
-exports.createRecord = function (id, options) {
-  var Ctor = null
-  if (typeof options === 'function') {
-    Ctor = options
-    options = Ctor.options
-  }
-  makeOptionsHot(id, options)
-  map[id] = {
-    Ctor: Vue.extend(options),
-    instances: []
-  }
-}
-
-/**
- * Make a Component options object hot.
- *
- * @param {String} id
- * @param {Object} options
- */
-
-function makeOptionsHot (id, options) {
-  injectHook(options, initHookName, function () {
-    map[id].instances.push(this)
-  })
-  injectHook(options, 'beforeDestroy', function () {
-    var instances = map[id].instances
-    instances.splice(instances.indexOf(this), 1)
-  })
-}
-
-/**
- * Inject a hook to a hot reloadable component so that
- * we can keep track of it.
- *
- * @param {Object} options
- * @param {String} name
- * @param {Function} hook
- */
-
-function injectHook (options, name, hook) {
-  var existing = options[name]
-  options[name] = existing
-    ? Array.isArray(existing)
-      ? existing.concat(hook)
-      : [existing, hook]
-    : [hook]
-}
-
-function tryWrap (fn) {
-  return function (id, arg) {
-    try { fn(id, arg) } catch (e) {
-      console.error(e)
-      console.warn('Something went wrong during Vue component hot-reload. Full reload required.')
-    }
-  }
-}
-
-exports.rerender = tryWrap(function (id, options) {
-  var record = map[id]
-  if (typeof options === 'function') {
-    options = options.options
-  }
-  record.Ctor.options.render = options.render
-  record.Ctor.options.staticRenderFns = options.staticRenderFns
-  record.instances.slice().forEach(function (instance) {
-    instance.$options.render = options.render
-    instance.$options.staticRenderFns = options.staticRenderFns
-    instance._staticTrees = [] // reset static trees
-    instance.$forceUpdate()
-  })
-})
-
-exports.reload = tryWrap(function (id, options) {
-  if (typeof options === 'function') {
-    options = options.options
-  }
-  makeOptionsHot(id, options)
-  var record = map[id]
-  record.Ctor.extendOptions = options
-  var newCtor = Vue.extend(options)
-  record.Ctor.options = newCtor.options
-  record.Ctor.cid = newCtor.cid
-  if (newCtor.release) {
-    // temporary global mixin strategy used in < 2.0.0-alpha.6
-    newCtor.release()
-  }
-  record.instances.slice().forEach(function (instance) {
-    if (instance.$vnode && instance.$vnode.context) {
-      instance.$vnode.context.$forceUpdate()
-    } else {
-      console.warn('Root or manually mounted instance modified. Full reload required.')
-    }
-  })
-})
-
-},{}],11:[function(require,module,exports){
+},{"./App.js":3,"vue":11,"vue-resource":9,"vue-router":10}],9:[function(require,module,exports){
 /*!
  * vue-resource v1.2.0
  * https://github.com/pagekit/vue-resource
@@ -2211,7 +1944,7 @@ if (typeof window !== 'undefined' && window.Vue) {
 
 module.exports = plugin;
 
-},{"got":1}],12:[function(require,module,exports){
+},{"got":1}],10:[function(require,module,exports){
 (function (process){
 /**
   * vue-router v2.2.0
@@ -4494,7 +4227,7 @@ if (inBrowser && window.Vue) {
 module.exports = VueRouter;
 
 }).call(this,require('_process'))
-},{"_process":2}],13:[function(require,module,exports){
+},{"_process":2}],11:[function(require,module,exports){
 (function (process,global){
 /*!
  * Vue.js v2.1.10
@@ -10706,4 +10439,4 @@ setTimeout(function () {
 module.exports = Vue$2;
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":2}]},{},[9]);
+},{"_process":2}]},{},[8]);

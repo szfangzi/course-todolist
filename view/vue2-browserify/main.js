@@ -2,32 +2,22 @@ var Vue = require('vue');
 var VueRouter = require('vue-router');
 var VueResource = require('vue-resource');
 
-Vue.use(VueRouter);
+// Vue.use(VueRouter);
 Vue.use(VueResource);
 
-var App = require('./App.vue');
-var App2 = require('./App2.vue');
+var App = require('./App.js');
+Vue.component('app', App);
+// var App2 = require('./App2.vue');
 
-const routes = {
-  '/': App,
-  '/about': App2
-}
+// const routes = {
+//   '/': App,
+//   '/about': App2
+// }
 
 new Vue({
-  el: '#app',
-  data: {
-    currentRoute: window.location.pathname
-  },
-  created:function() {
-    console.log(333,this.aaaa);
-  },
-  computed: {
-    aaaa:function() {
-      return routes[this.currentRoute]
-    }
-  },
+  el: 'body',
   render: h => {
-    return h(App2);
+    return h('div');
   }
 })
 

@@ -1,9 +1,10 @@
-<style>
+var All = require('./components/all.js');
+var Unf = require('./components/unf.js');
+var F = require('./components/f.js');
 
-</style>
-
-<template>
-  <div>
+var eventHub = require('./event.js');
+module.exports = {
+  template:`<div>
     <h1>任务列表</h1>
     <input type="text" v-model="newTodo" v-on:keypress.enter="add">
     <component :is="currentView" v-bind:list="list"></component>
@@ -12,16 +13,7 @@
     <a href="#unf">未完成的任务</a>
     <a href="#f">已完成的任务</a>
     <a href="javascript:;" v-on:click="delf">删除所有已完成的任务</a>
-  </div>
-</template>
-
-<script>
-var All = require('./components/all.vue');
-var Unf = require('./components/unf.vue');
-var F = require('./components/f.vue');
-
-var eventHub = require('./event.js');
-module.exports = {
+  </div>`,
   components:{
     All,
     Unf,
@@ -133,4 +125,3 @@ module.exports = {
   }
 
 }
-</script>

@@ -6,7 +6,10 @@
   <div>
     <h1>任务列表</h1>
     <input type="text" v-model="newTodo" v-on:keypress.enter="add">
-    <component :is="currentView" v-bind:list="list"></component>
+    <all v-bind:list="list"></all>
+    <f v-bind:list="list"></f>
+    <unf v-bind:list="list"></unf>
+    <!-- <component :is="currentView" v-bind:list="list"></component> -->
     <span>还剩下<b>{{unFLen}}</b>个未完成的任务</span>
     <a href="#all">所有任务</a>
     <a href="#unf">未完成的任务</a>
