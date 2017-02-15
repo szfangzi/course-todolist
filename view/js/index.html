@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    .del-line{
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <h1>任务列表</h1>
+  <input type="text" >
+  <ul>
+    <li>
+      <input type="checkbox">
+      <span class="name"></span>
+      <button class="del">x</button>
+    </li>
+  </ul>
+  <span class="unflen">还剩下<b></b>个未完成的任务</span>
+  <a href="#all">所有任务</a>
+  <a href="#unf">未完成的任务</a>
+  <a href="#f">已完成的任务</a>
+  <a href="javascript:;" id="delfBtn">删除所有已完成的任务</a>
+</div>
+<script src="util.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
