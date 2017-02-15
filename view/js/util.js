@@ -66,4 +66,4 @@ $.post = function(url, data, callback) {
 	}
 	ajaxObj.success = callback;
 	$.ajax(ajaxObj);
-}
+};
