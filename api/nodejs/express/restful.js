@@ -18,6 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // 获取列表
 app.get('/todos', function (req, res) {
   var q = req.query;
+  console.log(q);
   var sqlText = 'select * from list';
   if(q.hasOwnProperty('isTick')){
     sqlText += ' where isTick = '+q.isTick;
@@ -28,7 +29,7 @@ app.get('/todos', function (req, res) {
 });
 
 // 新增任务
-app.post('/todos', function (req, res) {
+app.post('/todos', function (req, res) {console.log(req.body);
   var name = req.body.name;
   db.query('insert into list (name) values("'+name+'")', function(err, data){
     if(!err){
