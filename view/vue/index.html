@@ -29,6 +29,8 @@
   <a href="#unf">未完成的任务</a>
   <a href="#f">已完成的任务</a>
   <a href="javascript:;" v-on:click="delf">删除所有已完成的任务</a>
+  <input type="file" id="file" />
+  <button v-on:click="upload">上传图片</button>
 </div>
 
 <script>
@@ -106,6 +108,18 @@
       },
       delf: function () {
         this.list = this.list.filter(this.unfFilter);
+      },
+      upload:function() {
+        var file = document.querySelector('#file').files[0];
+        var formData = new FormData();
+        formData.append('file',file);
+        
+        console.log(this.file);
+        this.$http.post('/upload', formData).then(function(res) {
+          console.log(res);
+        }, function (err) {
+          console.log(err);
+        })
       }
     }
   });
