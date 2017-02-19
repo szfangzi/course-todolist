@@ -1,25 +1,24 @@
 (function(window) {
 
-	var jQuery = function( selector ) {
+	var $ = function( selector ) {
 		
-		return new jQuery.fn.init( selector );
+		return new $.fn.init( selector );
 	};
 
-	jQuery.fn = jQuery.prototype = {
+	$.fn = $.prototype = {
 	
-		constructor: jQuery,
+		constructor: $,
 		length: 0
 	};
 
-	var init = jQuery.fn.init = function( selector ) {
+	var init = $.fn.init = function( selector ) {
 		
-
-		return jQuery.makeArray( selector, this );
+		return document.querySelectorAll(selector);
 	};
 
 
-	init.prototype = jQuery.fn;
+	init.prototype = $.fn;
 
-	window.jQuery = window.$ = jQuery;
+	window.$ = $;
 
 })(window);

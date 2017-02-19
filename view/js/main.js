@@ -9,14 +9,14 @@
 // }
 // xhr.send();
 
-$.ajax({
-	url:'/todos',
-	method:'get',
-	data:{name:'撒打算'},
-	success:function(data) {
-		console.log(data);
-	}
-});
+// $.ajax({
+// 	url:'/todos',
+// 	method:'get',
+// 	data:{name:'撒打算'},
+// 	success:function(data) {
+// 		console.log(data);
+// 	}
+// });
 
 var app = $('#app');
 console.log(app);
