@@ -20,7 +20,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // 获取列表
 app.get('/todos', function (req, res) {
   var q = req.query;
-  console.log(q);
   var sqlText = 'select * from list';
   if(q.hasOwnProperty('isTick')){
     sqlText += ' where isTick = '+q.isTick;
@@ -51,7 +50,7 @@ app.put('/todos/:id', function (req, res) {
 
   for (var k in obj) {
     if(k=='isTick'){
-      updateText += ' '+ k + '=' + (obj[k]?1:0) + ' ,';
+      updateText += ' '+ k + '=' + (obj[k].toString()=='1'||obj[k].toString()=='true'?1:0) + ' ,';
     }else if(k!='id'){
       updateText += ' '+ k + '="' + obj[k] + '"  ,';
     }

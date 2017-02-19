@@ -13,21 +13,115 @@
 
 <div id="app">
   <h1>任务列表</h1>
-  <input type="text" >
+  <input type="text" id="input" >
   <ul>
-    <li>
-      <input type="checkbox">
-      <span class="name"></span>
-      <button class="del">x</button>
-    </li>
+
   </ul>
   <span class="unflen">还剩下<b></b>个未完成的任务</span>
-  <a href="#all">所有任务</a>
-  <a href="#unf">未完成的任务</a>
-  <a href="#f">已完成的任务</a>
+  <a href="#all" id="all-btn">所有任务</a>
+  <a href="#unf" id="unf-btn">未完成的任务</a>
+  <a href="#f" id="f-btn">已完成的任务</a>
   <a href="javascript:;" id="delfBtn">删除所有已完成的任务</a>
 </div>
-<script src="util.js"></script>
-<script src="main.js"></script>
+<script type="text/javascript" src="./util.js"></script>
+<script>
+
+var inputDOM = document.querySelector('#input');
+var todos = [];
+init();
+
+inputDOM.addEventListener('keyup', function(e){
+  var name = this.value.trim();
+  if(e.keyCode === 13 && name){
+    $.post('/todos', {name:name}, function (data){
+      todos.push({id:data.id, name:name, isTick:0});
+      render();
+      this.value = '';
+    }.bind(this));
+  }
+
+});
+
+function init(){
+  $.ajax({
+    url:'/todos',
+    async:false,
+    success:function(data){
+      todos = data;
+      render();
+    }
+  })
+}
+
+function render(){
+  var html = '';
+  todos.forEach(function (n){
+    if(n.isTick === 0){
+      html += `<li tid="${n.id}">
+            <input type="checkbox" >
+            <span class="name">${n.name}</span>
+            <button class="del">x</button>
+          </li>`;
+    }else{
+      html += `<li tid="${n.id}">
+            <input type="checkbox" checked >
+            <span class="name">${n.name}</span>
+            <button class="del">x</button>
+          </li>`;
+    }
+
+  });
+  document.querySelector('ul').innerHTML = html;
+  eventBind();
+}
+
+function eventBind(){
+  document.querySelectorAll('.del').forEach(function (n){
+    n.addEventListener('click', function (e){
+      var tid = this.parentNode.getAttribute('tid');
+      $.ajax({
+        url:'/todos/'+tid,
+        method:'DELETE',
+        success:function (data){
+          if(data.hasOwnProperty('id')){
+            todos.find(function (n, i){
+              if(n.id == tid){
+                todos.splice(i, 1);
+                return true;
+              }else{
+                return false;
+              }
+            });
+            render();
+          }
+        }
+      })
+    });
+  });
+
+  document.querySelectorAll('input[type=checkbox]').forEach(function (n){
+    n.addEventListener('change', function (e){
+      var tid = this.parentNode.getAttribute('tid');
+      $.ajax({
+        url:'/todos/'+tid,
+        method:'PUT',
+        data:{isTick:e.target.checked},
+        success:function (data){
+          todos.find(function (n, i){
+            if(n.id == tid){
+              n.isTick = e.target.checked;
+              return true;
+            }else{
+              return false;
+            }
+          });
+        }
+      })
+    })
+  });
+
+}
+
+</script>
 </body>
 </html>

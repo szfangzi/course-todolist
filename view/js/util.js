@@ -3,29 +3,9 @@ var typeTags = {
 	function:'function'
 };
 
-(function(window) {
-
-	var $ = function( selector ) {
-		
-		return new $.fn.init( selector );
-	};
-
-	$.fn = $.prototype = {
-	
-		constructor: $,
-		length: 0
-	};
-
-	var init = $.fn.init = function( selector ) {
-		this.dom = document.querySelectorAll(selector);
-	};
-
-
-	init.prototype = $.fn;
-
-	window.$ = $;
-
-})(window);
+var $ = function(selector){
+  return document.querySelectorAll(selector);
+};
 
 $.dataEncode = function(obj) {
 	var body = '';
@@ -40,17 +20,21 @@ $.urlQuery = function(url, obj) {
 $.ajax = function(req) {
 
 	var xhr = new XMLHttpRequest();
+
+  req.method = req.method || 'GET';
+
 	var isGet = req.method.toUpperCase() === 'GET';
 	var isObjectData = req.data && req.data.toString() === typeTags.object;
 
 	req.url = isGet && isObjectData ? $.urlQuery(req.url, req.data) : req.url;
-	req.async = req.async === undefined ? true : req.async; 
+	req.async = req.async === undefined ? true : req.async;
+
 	xhr.open(req.method, req.url, req.async);
 	xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 	xhr.onreadystatechange = function() {
 		if(xhr.readyState == 4){
 			if(xhr.status == 200){
-				req.success && typeof req.success === typeTags.function && req.success(xhr.response);
+				req.success && typeof req.success === typeTags.function && req.success(JSON.parse(xhr.response));
 			}
 		}
 	}
@@ -60,7 +44,7 @@ $.ajax = function(req) {
 		var body = req.data && req.data.toString() === typeTags.object ? $.dataEncode(req.data) : null;
 		xhr.send(body);
 	}
-	
+
 }
 $.get = function(url, data, callback) {
 	var ajaxObj = {
