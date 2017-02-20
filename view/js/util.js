@@ -12,6 +12,7 @@ $.dataEncode = function(obj) {
 	for(var k in obj){
 		body += k+'='+obj[k]+'&';
 	}
+  body = body.substr(0, body.length - 1);
 	return body;
 };
 $.urlQuery = function(url, obj) {
@@ -26,6 +27,7 @@ $.ajax = function(req) {
 	var isGet = req.method.toUpperCase() === 'GET';
 	var isObjectData = req.data && req.data.toString() === typeTags.object;
 
+  req.data = req.data || {};
 	req.url = isGet && isObjectData ? $.urlQuery(req.url, req.data) : req.url;
 	req.async = req.async === undefined ? true : req.async;
 

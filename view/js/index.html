@@ -28,6 +28,7 @@
 
 var inputDOM = document.querySelector('#input');
 var todos = [];
+var type = 'all';
 init();
 
 inputDOM.addEventListener('keyup', function(e){
@@ -35,7 +36,7 @@ inputDOM.addEventListener('keyup', function(e){
   if(e.keyCode === 13 && name){
     $.post('/todos', {name:name}, function (data){
       todos.push({id:data.id, name:name, isTick:0});
-      render();
+      render(type);
       this.value = '';
     }.bind(this));
   }
@@ -48,14 +49,24 @@ function init(){
     async:false,
     success:function(data){
       todos = data;
-      render();
+      render(type);
     }
   })
 }
 
-function render(){
+function render(type = 'all'){
   var html = '';
-  todos.forEach(function (n){
+  var filterTodos = todos;
+  if(type === 'f'){
+    filterTodos = todos.filter(function(n){
+      return n.isTick;
+    });
+  }else if(type === 'unf'){
+    filterTodos = todos.filter(function(n){
+      return !n.isTick;
+    });
+  };
+  filterTodos.forEach(function (n){
     if(n.isTick === 0){
       html += `<li tid="${n.id}">
             <input type="checkbox" >
@@ -73,7 +84,11 @@ function render(){
   });
   document.querySelector('ul').innerHTML = html;
   eventBind();
-}
+  document.querySelector('.unflen b').innerHTML =
+    todos.filter(function (n){
+      return !n.isTick;
+    }).length;
+};
 
 function eventBind(){
   document.querySelectorAll('.del').forEach(function (n){
@@ -92,7 +107,7 @@ function eventBind(){
                 return false;
               }
             });
-            render();
+            render(type);
           }
         }
       })
@@ -109,18 +124,48 @@ function eventBind(){
         success:function (data){
           todos.find(function (n, i){
             if(n.id == tid){
-              n.isTick = e.target.checked;
+              todos[i].isTick = e.target.checked ? 1 : 0;
               return true;
             }else{
               return false;
             }
           });
+          render(type);
         }
       })
     })
   });
 
-}
+};
+
+document.querySelector('#delfBtn').addEventListener('click', function (e){
+  var ids = todos.filter(function(n){
+    return n.isTick;
+  }).map(function (n){
+    return n.id
+  }).join(',');
+  $.post('/todos/delf', {filteredTodosIds:ids}, function (data){
+    if(data.hasOwnProperty('ids')){
+      todos = todos.filter(function(n){
+        return !n.isTick;
+      });
+      render(type);
+    }
+  });
+});
+
+document.querySelector('#all-btn').addEventListener('click', function (e){
+  type = 'all';
+  render(type);
+});
+document.querySelector('#f-btn').addEventListener('click', function (e){
+  type = 'f';
+  render(type);
+});
+document.querySelector('#unf-btn').addEventListener('click', function (e){
+  type = 'unf';
+  render(type);
+});
 
 </script>
 </body>
